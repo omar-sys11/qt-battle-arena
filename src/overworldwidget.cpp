@@ -63,6 +63,8 @@ OverworldWidget::OverworldWidget(QWidget *parent)
 
     buildScene();
     setFocusPolicy(Qt::StrongFocus);
+    m_view->setTransform(QTransform());  // reset any scaling
+    m_view->setSceneRect(0, 0, WORLD_W, WORLD_H);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
