@@ -106,12 +106,24 @@ void MainWindow::onStateChanged(GameState newState)
 
     // ── All active battle states show the battle screen ──────────────────────
     case GameState::Playing:
-    case GameState::PlayerTurn:
     case GameState::AnimatingAttack:
     case GameState::Paused:
     case GameState::RoundOver:
         m_stack->setCurrentWidget(m_battleWidget);
         m_audio->playMusic("/music/battle.ogg");
+        break;
+
+    case GameState::PlayerTurn:
+        if (m_stack->currentWidget() == m_charSelect) {
+            // Player just finished character select — send them to the Overworld first
+            m_overworld->activate();
+            m_stack->setCurrentWidget(m_overworld);
+            m_audio->playMusic("/music/menu.ogg");
+        } else {
+            // Already in a battle (enemy took their turn, now it's player's turn again)
+            m_stack->setCurrentWidget(m_battleWidget);
+            m_audio->playMusic("/music/battle.ogg");
+        }
         break;
 
     case GameState::GameOver:
@@ -124,44 +136,6 @@ void MainWindow::onStateChanged(GameState newState)
         break;
     }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  Overworld / Dungeon navigation slots
-// ─────────────────────────────────────────────────────────────────────────────
-
-// Called when the player finishes character selection.
-// Instead of jumping to battle, we now drop them into the Overworld.
-// Hook this up by connecting CharacterSelectWidget's "character confirmed"
-// signal here, OR intercept GameState::PlayerTurn the first time it fires
-// before any round is started.  The cleanest approach is to connect
-// GameEngine::stateChanged and, on the very first PlayerTurn after select,
-// redirect to the overworld.  However the simplest zero-change approach is
-// to override the CharacterSelect → PlayerTurn transition:
-//
-//   In onStateChanged(), when newState == PlayerTurn AND the stack is still
-//   showing m_charSelect, show the overworld instead.
-//
-// That is already handled: onPlayerSelectedCharacter() calls setState(PlayerTurn)
-// in GameEngine, which fires onStateChanged(PlayerTurn) here.  We intercept it:
-
-// NOTE: Replace the PlayerTurn case above with this if you want the redirect:
-//
-//   case GameState::PlayerTurn:
-//       if (m_stack->currentWidget() == m_charSelect) {
-//           // First entry into battle – send player to Overworld first
-//           m_overworld->activate();
-//           m_stack->setCurrentWidget(m_overworld);
-//           m_audio->playMusic("/music/menu.ogg");
-//       } else {
-//           m_stack->setCurrentWidget(m_battleWidget);
-//           m_audio->playMusic("/music/battle.ogg");
-//       }
-//       break;
-//
-// For now the flow is: StartScreen → CharSelect → Overworld (via onDungeonEntered
-// chain) → Dungeon → Battle.  The GameEngine starts a real battle only when
-// onBattleTriggered calls onPlayerSelectedCharacter().
-
 
 void MainWindow::onDungeonEntered()
 {
