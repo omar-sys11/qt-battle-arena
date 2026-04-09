@@ -3,6 +3,7 @@
 #include "gameengine.h"
 
 class QTableWidget;
+class QLabel;
 
 class ScoreboardWidget : public QWidget {
     Q_OBJECT
@@ -18,5 +19,8 @@ protected:
 private:
     void refresh();
     GameEngine*   m_engine;
-    QTableWidget* m_table;
+    QLabel*       m_winnerLabel = nullptr;
+    QLabel*       m_scoreLabel  = nullptr;
+    QTableWidget* m_roundTable  = nullptr;
+    QTableWidget* m_charTable   = nullptr;
 };

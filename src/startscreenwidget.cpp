@@ -61,8 +61,10 @@ StartScreenWidget::StartScreenWidget(GameEngine* engine, QWidget* parent)
     });
 
     connect(m_loadBtn, &QPushButton::clicked, this, [this]{
-        if (m_engine->onLoadGame("savegame.json"))
-            m_engine->onStartGame();
+        m_engine->onLoadGame("savegame.json");
+        // onLoadGame internally calls setState(PlayerTurn) if successful,
+        // which MainWindow::onStateChanged will pick up and show the battle screen.
+        // If the file doesn't exist it returns false and nothing happens.
     });
 }
 
