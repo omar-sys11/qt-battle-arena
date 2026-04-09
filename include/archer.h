@@ -6,12 +6,7 @@ public:
     Archer(const QString& name);
     ~Archer() override;
 
-    CharacterType getType()         const override;
-    int           attack()          const override;
-    int           specialAbility()  const override; // "Double Shot"
-
-private:
-    // Archer stats: balanced
-    static constexpr int BASE_HEALTH = 110;
-    static constexpr int BASE_ATTACK = 25;
+    CharacterType getType()        const override;
+    int           attack()         const override;
+    int           specialAbility() const override; // "Double Shot"
 };

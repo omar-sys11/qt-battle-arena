@@ -28,6 +28,8 @@ private slots:
     void onHealthUpdated(float playerPct, float enemyPct);
     void onBattleActionResolved(const BattleResult& result);
     void onRoundEnded(int pScore, int eScore, bool playerWon);
+    void onEnergyUpdated(float playerPct, float enemyPct);
+
 
 private:
     void layoutChildren();
@@ -43,6 +45,10 @@ private:
     QLabel*          m_enemyNameLabel;
     QLabel*          m_roundLabel;
     QLabel*          m_scoreLabel;
+    HealthBarWidget* m_playerSP;
+    HealthBarWidget* m_enemySP;
+    QLabel*          m_playerSpLabel;  // (shows "SP" text)
+    QLabel*          m_enemySpLabel;
 
     // ── Bottom panel ──────────────────────────────
     BattleLogWidget* m_log;

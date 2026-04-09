@@ -98,8 +98,24 @@ void GameEngine::onPlayerSelectedCharacter(CharacterType type, const QString& na
 void GameEngine::resolvePlayerAction(bool useSpecial)
 {
     if (m_state != GameState::PlayerTurn) return;
+
+    if (useSpecial && !m_player->canUseSpecial()) {
+        emit battleLogMessage("Not enough SP for Special!");
+        return;   // don't even leave PlayerTurn state
+    }
+
     setState(GameState::AnimatingAttack);
     int damage = useSpecial ? m_player->specialAbility() : m_player->attack();
+    // ── Update SP ─────────────────────────────────
+    if (useSpecial)
+        m_player->drainSp();
+    else
+        m_player->addSpFromAttack();   // ← clean, no magic number here
+
+    emit energyUpdated(m_player->getSpPercent(), m_enemy->getSpPercent());
+
+
+    emit energyUpdated(m_player->getSpPercent(), m_enemy->getSpPercent());
     m_playerMoveHistory.append(useSpecial);
     if (m_playerMoveHistory.size() > 5) m_playerMoveHistory.removeFirst();
     m_enemy->takeDamage(damage);
@@ -136,6 +152,7 @@ void GameEngine::onPlayerChoseItem()
     int healAmount = static_cast<int>(m_player->getMaxHealth() * 0.35f);
     m_player->heal(healAmount);
     emit healthUpdated(m_player->getHealthPercent(), m_enemy->getHealthPercent());
+    emit energyUpdated(m_player->getSpPercent(), m_enemy->getSpPercent());
     emit battleLogMessage(QString("%1 used a Potion! Recovered %2 HP!")
                               .arg(m_player->getName()).arg(healAmount));
     m_roundTimer->start(900);
@@ -176,6 +193,12 @@ void GameEngine::enemyTakeTurn()
         break;
     }
     }
+    if (useSpecial)
+        m_enemy->drainSp();
+    else
+        m_enemy->addSpFromAttack();
+
+    emit energyUpdated(m_player->getSpPercent(), m_enemy->getSpPercent());
     m_player->takeDamage(damage);
     BattleResult result;
     result.attackerName    = m_enemy->getName();
@@ -274,12 +297,14 @@ bool GameEngine::onSaveGame(const QString& path)
     obj["playerHealth"]   = static_cast<int>(
         m_player->getHealthPercent() * m_player->getMaxHealth());
     obj["playerMaxHealth"]= m_player->getMaxHealth();
+    obj["playerSp"] = m_player->getSp();
 
     obj["enemyName"]      = m_enemy->getName();
     obj["enemyType"]      = static_cast<int>(m_enemy->getType());
     obj["enemyHealth"]    = static_cast<int>(
         m_enemy->getHealthPercent() * m_enemy->getMaxHealth());
     obj["enemyMaxHealth"] = m_enemy->getMaxHealth();
+    obj["enemySp"]  = m_enemy->getSp();
 
     obj["currentRound"]   = m_currentRound;
     obj["playerScore"]    = m_playerScore;
@@ -317,11 +342,14 @@ bool GameEngine::onLoadGame(const QString& path)
     m_enemyScore   = obj["enemyScore"].toInt(0);
     m_itemUsed     = obj["itemUsed"].toBool(false);
 
+
     // Recreate player at full health then apply saved damage
     m_player = createCharacter(m_playerType, m_playerName);
     int savedPlayerHP  = obj["playerHealth"].toInt(m_player->getMaxHealth());
     int playerDamage   = m_player->getMaxHealth() - savedPlayerHP;
     if (playerDamage > 0) m_player->takeDamage(playerDamage);
+    int savedPlayerSp = obj["playerSp"].toInt(0);
+    m_player->addSp(savedPlayerSp);
 
     // Recreate enemy
     CharacterType enemyType = static_cast<CharacterType>(obj["enemyType"].toInt());
@@ -330,6 +358,8 @@ bool GameEngine::onLoadGame(const QString& path)
     int savedEnemyHP = obj["enemyHealth"].toInt(m_enemy->getMaxHealth());
     int enemyDamage  = m_enemy->getMaxHealth() - savedEnemyHP;
     if (enemyDamage > 0) m_enemy->takeDamage(enemyDamage);
+    int savedEnemySp = obj["enemySp"].toInt(0);
+    m_enemy->addSp(savedEnemySp);
 
     m_allCharacters.append(m_player);
     m_allCharacters.append(m_enemy);

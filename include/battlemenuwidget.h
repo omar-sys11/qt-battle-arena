@@ -12,7 +12,7 @@ public:
 
     void setMenuEnabled(bool enabled);
     void updateItemButton();        // greys it out after use
-
+    void updateSpecialButton();
 protected:
     void keyPressEvent(QKeyEvent* event) override;
 

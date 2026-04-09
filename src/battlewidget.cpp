@@ -34,6 +34,19 @@ BattleWidget::BattleWidget(GameEngine* engine, AudioManager* audio, QWidget* par
     m_enemyHP  = new HealthBarWidget(this);
     m_playerHP->setFixedSize(200, 16);
     m_enemyHP->setFixedSize(200, 16);
+    m_playerSP = new HealthBarWidget(this);
+    m_enemySP  = new HealthBarWidget(this);
+    m_playerSP->setFixedSize(200, 10);
+    m_enemySP->setFixedSize(200, 10);
+    m_playerSP->setFixedBarColor(QColor("#4A90D9"));   // blue
+    m_enemySP->setFixedBarColor(QColor("#4A90D9"));
+    m_playerSP->animateTo(0.0f);   // starts empty
+    m_enemySP->animateTo(0.0f);
+
+    m_playerSpLabel = new QLabel("SP", this);
+    m_enemySpLabel  = new QLabel("SP", this);
+    m_playerSpLabel->setObjectName("subtitleLabel");
+    m_enemySpLabel->setObjectName("subtitleLabel");
 
     m_roundLabel = new QLabel("Round 1 / 5", this);
     m_scoreLabel = new QLabel("0 — 0",       this);
@@ -120,8 +133,16 @@ BattleWidget::BattleWidget(GameEngine* engine, AudioManager* audio, QWidget* par
             }
         }
     });
+    connect(engine, &GameEngine::energyUpdated,
+            this,   &BattleWidget::onEnergyUpdated);
 }
-
+void BattleWidget::onEnergyUpdated(float playerPct, float enemyPct)
+{
+    m_playerSP->animateTo(playerPct);
+    m_enemySP->animateTo(enemyPct);
+    // Also refresh SPECIAL button state
+    m_menu->updateSpecialButton();
+}
 void BattleWidget::onStateChanged(GameState state)
 {
     m_menu->setMenuEnabled(state == GameState::PlayerTurn);
@@ -219,6 +240,8 @@ void BattleWidget::layoutChildren()
     m_enemyNameLabel->move(24, 16);
     m_enemyNameLabel->resize(200, 20);
     m_enemyHP->move(24, 40);
+    m_enemySpLabel->move(6, 58);
+    m_enemySP->move(24, 58);
 
     // Enemy sprite: upper-right
     m_enemySprite->move(w - 220, 20);
@@ -230,6 +253,8 @@ void BattleWidget::layoutChildren()
     m_playerNameLabel->move(w - 260, battleH - 60);
     m_playerNameLabel->resize(200, 20);
     m_playerHP->move(w - 260, battleH - 36);
+    m_playerSpLabel->move(w - 278, battleH - 18);
+    m_playerSP->move(w - 260, battleH - 18);
 
     // Round/score: top-center
     m_roundLabel->move(w/2 - 80, 16);

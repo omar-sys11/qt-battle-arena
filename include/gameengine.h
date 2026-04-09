@@ -35,7 +35,9 @@ public:
     SessionStats getSessionStats() const { return m_tracker.getStats(); }
     QString      getPlayerName()   const { return m_playerName; }
     CharacterType getPlayerType()  const { return m_playerType; }
-
+    bool playerCanUseSpecial()     const {                         // ← ADD
+        return m_player && m_player->canUseSpecial();
+    }
     const QList<Character*>&   getAllCharacters()  const { return m_allCharacters; }
     const QList<RoundRecord>&  getRoundHistory()   const { return m_roundHistory; }
 
@@ -46,6 +48,7 @@ signals:
     void battleActionResolved(BattleResult result);
     void roundEnded(int playerScore, int enemyScore, bool playerWonRound);
     void gameOver(bool playerWon, int finalPlayerScore, int finalEnemyScore);
+    void energyUpdated(float playerSpPct, float enemySpPct);
 
 public slots:
     void setState(GameState s);

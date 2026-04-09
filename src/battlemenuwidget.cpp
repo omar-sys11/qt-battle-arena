@@ -33,6 +33,7 @@ void BattleMenuWidget::setMenuEnabled(bool enabled)
     if (enabled) {
         setFocus();
         updateItemButton();
+        updateSpecialButton();
     }
 }
 
@@ -82,4 +83,16 @@ void BattleMenuWidget::keyPressEvent(QKeyEvent* event)
     case Qt::Key_Space: confirmSelection(); break;
     default: QWidget::keyPressEvent(event);
     }
+}
+
+void BattleMenuWidget::updateSpecialButton()
+{
+    bool canUse = m_engine->playerCanUseSpecial();
+    m_buttons[1]->setEnabled(canUse);
+    // The cursor label update handles the ► prefix already
+    // but we need to update the text for the disabled state:
+    if (!canUse)
+        m_buttons[1]->setText("  SPECIAL —");
+    else
+        updateCursor();   // restores normal label with cursor
 }
