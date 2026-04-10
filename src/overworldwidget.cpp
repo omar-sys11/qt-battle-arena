@@ -1,5 +1,6 @@
 #include "overworldwidget.h"
-
+#include <QDir>
+#include <QFileInfo>
 #include <QVBoxLayout>
 #include <QResizeEvent>
 #include <QPainter>
