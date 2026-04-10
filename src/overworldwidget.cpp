@@ -1,5 +1,5 @@
 #include "overworldwidget.h"
-
+#include <QGraphicsEllipseItem>
 #include <QVBoxLayout>
 #include <QResizeEvent>
 #include <QPainter>
