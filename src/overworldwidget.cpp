@@ -203,7 +203,17 @@ void OverworldWidget::deactivate()
 void OverworldWidget::buildScene()
 {
     // ── Background ───────────────────────────────────────────────────────────
-    m_scene->setBackgroundBrush(QColor("#4a7c40"));
+    QPixmap grassTile("resources/sprites/grass.png");
+    int tileW = grassTile.width();
+    int tileH = grassTile.height();
+    
+    for (int y = 0; y < WORLD_H; y += tileH) {
+        for (int x = 0; x < WORLD_W; x += tileW) {
+            QGraphicsPixmapItem *tile = m_scene->addPixmap(grassTile);
+            tile->setPos(x, y);
+            tile->setZValue(0);
+        }
+    }
 
     // Central dirt path
     auto *path = m_scene->addRect(WORLD_W * 0.38, 0,
