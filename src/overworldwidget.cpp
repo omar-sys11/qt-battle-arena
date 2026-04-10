@@ -204,8 +204,9 @@ void OverworldWidget::buildScene()
 {
     // ── Background ───────────────────────────────────────────────────────────
     QPixmap grassTile("resources/sprites/grass.png");
-    const int TILE_SIZE = 64; // choose 32 or 64 depending on your game
 
+    const int TILE_SIZE = 64; // choose 32 or 64 depending on your game
+    
     QPixmap scaledTile = grassTile.scaled(
         TILE_SIZE,
         TILE_SIZE,
@@ -213,9 +214,9 @@ void OverworldWidget::buildScene()
         Qt::FastTransformation
     );
     
-    for (int y = 0; y < WORLD_H; y += tileH) {
-        for (int x = 0; x < WORLD_W; x += tileW) {
-            QGraphicsPixmapItem *tile = m_scene->addPixmap(grassTile);
+    for (int y = 0; y < WORLD_H; y += TILE_SIZE) {
+        for (int x = 0; x < WORLD_W; x += TILE_SIZE) {
+            QGraphicsPixmapItem *tile = m_scene->addPixmap(scaledTile);
             tile->setPos(x, y);
             tile->setZValue(0);
         }
