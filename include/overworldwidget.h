@@ -38,26 +38,27 @@ struct SpriteSheet
 //    idle frame  → row 0, column N
 //    walk cycle  → row N+1, columns 0-5
 //
-//  Directions confirmed by visual inspection of individual frames:
-//    Col/Row 0 → SE   (right, facing camera-right)
-//    Col/Row 1 → N    (up,   back to camera)
-//    Col/Row 2 → SW   (left-back diagonal)
-//    Col/Row 3 → W    (left)
-//    Col/Row 4 → NE   (up-right diagonal)
-//    Col/Row 5 → SW2  (down-left, slight crouch)
-//    Col/Row 6 → E    (right-forward)
-//    Col/Row 7 → S    (down / toward camera)
+//  Sheet rows (0-indexed):
+//    Row 0 → Idle (one frame per column, 8 directions)
+//    Row 1 → Right
+//    Row 2 → Up
+//    Row 3 → Forward-right (up-right diagonal)
+//    Row 4 → Forward-left  (up-left diagonal)
+//    Row 5 → Down
+//    Row 6 → Down-right
+//    Row 7 → Down-left
+//    Row 8 → Left
 // ─────────────────────────────────────────────────────────────────────────────
 enum class Direction : int
 {
-    SE   = 0,
-    N    = 1,
-    SW   = 2,
-    W    = 3,
-    NE   = 4,
-    SW2  = 5,
-    E    = 6,
-    S    = 7
+    Right        = 0,   // walk row 1
+    Up           = 1,   // walk row 2
+    ForwardRight = 2,   // walk row 3
+    ForwardLeft  = 3,   // walk row 4
+    Down         = 4,   // walk row 5
+    DownRight    = 5,   // walk row 6
+    DownLeft     = 6,   // walk row 7
+    Left         = 7    // walk row 8
 };
 
 // Helper: walk row for a direction
@@ -68,17 +69,14 @@ inline int idleCol(Direction d) { return static_cast<int>(d); }
 // ─────────────────────────────────────────────────────────────────────────────
 //  WASD → Direction mapping
 //
-//  Pure cardinal keys map to the four true cardinal directions.
-//  Diagonal combinations map to the nearest diagonal direction.
-//
-//   W        → N    (row 2, back to camera)
-//   S        → S    (row 8, toward camera)
-//   A        → W    (row 4, left)
-//   D        → E    (row 7, right-forward)
-//   W+D      → NE   (row 5)
-//   W+A      → SW   (row 3)  [best available NW approximation]
-//   S+D      → SE   (row 1)
-//   S+A      → SW2  (row 6)
+//   D        → Right
+//   A        → Left
+//   W        → Up
+//   S        → Down
+//   W+D      → ForwardRight
+//   W+A      → ForwardLeft
+//   S+D      → DownRight
+//   S+A      → DownLeft
 // ─────────────────────────────────────────────────────────────────────────────
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -105,7 +103,7 @@ private:
     const SpriteSheet &m_sheet;
 
     bool      m_isIdle     = true;
-    Direction m_facing     = Direction::S;   // start facing toward camera
+    Direction m_facing     = Direction::Down;   // start facing toward camera
     int       m_frameIndex = 0;
     int       m_tickAccum  = 0;
 
