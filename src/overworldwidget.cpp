@@ -243,11 +243,31 @@ void OverworldWidget::buildScene()
         }
     }
 
-    // Central dirt path
-    auto *path = m_scene->addRect(WORLD_W * 0.38, 0,
-                                  WORLD_W * 0.24, WORLD_H,
-                                  Qt::NoPen, QBrush(QColor("#8d6e3a")));
-    path->setZValue(0);
+    // ── Dirt path ─────────────────────────────────────────────
+    QPixmap dirt1("resources/sprites/dirt1.png");
+    QPixmap dirt2("resources/sprites/dirt2.png");
+    
+    const int TILE = 64;   // match whatever tile size you are using
+    
+    QPixmap d1 = dirt1.scaled(TILE, TILE, Qt::IgnoreAspectRatio, Qt::FastTransformation);
+    QPixmap d2 = dirt2.scaled(TILE, TILE, Qt::IgnoreAspectRatio, Qt::FastTransformation);
+    
+    qreal pathX = WORLD_W * 0.38;
+    qreal pathW = WORLD_W * 0.24;
+    
+    for (int y = 0; y < WORLD_H; y += TILE) {
+        for (int x = pathX; x < pathX + pathW; x += TILE) {
+    
+            // ~12% chance to place dirt2
+            bool useAlt = (QRandomGenerator::global()->bounded(100) < 12);
+    
+            QGraphicsPixmapItem *tile =
+                m_scene->addPixmap(useAlt ? d2 : d1);
+    
+            tile->setPos(x, y);
+            tile->setZValue(0);
+        }
+}
 
     // ── Inn ──────────────────────────────────────────────────────────────────
     auto *walls = m_scene->addRect(80, 220, 140, 110,
