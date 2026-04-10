@@ -1,6 +1,5 @@
 #include "overworldwidget.h"
-#include <QDir>
-#include <QFileInfo>
+
 #include <QVBoxLayout>
 #include <QResizeEvent>
 #include <QPainter>
@@ -8,6 +7,9 @@
 #include <QPen>
 #include <QFont>
 #include <QKeyEvent>
+#include <QDir>
+#include <QFileInfo>
+#include <QDebug>
 
 // ═════════════════════════════════════════════════════════════════════════════
 //  PlayerSprite
@@ -144,19 +146,16 @@ OverworldWidget::OverworldWidget(QWidget *parent)
     : QWidget(parent)
 {
     // ── Load sprite sheet ────────────────────────────────────────────────────
-    // Primary:  Qt resource  :/sprites/player.png
-    //   Add to your .qrc:
-    //     <file alias="sprites/player.png">assets/player.png</file>
-    //
-    // Fallback: player.png next to the executable
-    m_sheet.pixmap = QPixmap(":/resources/sprites/player.png");
-    if (m_sheet.pixmap.isNull())
-        m_sheet.pixmap = QPixmap("player.png");
+    QString spritePath = "resources/sprites/player.png";
+    qDebug() << "Working directory:" << QDir::currentPath();
+    qDebug() << "Absolute sprite path:" << QFileInfo(spritePath).absoluteFilePath();
+    qDebug() << "File exists on disk:" << QFileInfo(spritePath).exists();
 
-    Q_ASSERT_X(!m_sheet.pixmap.isNull(), "OverworldWidget",
-               "Could not load player sprite sheet.\n"
-               "Add it to resources as :/resources/sprites/player.png "
-               "or place player.png next to the executable.");
+    m_sheet.pixmap = QPixmap(spritePath);
+
+    if (m_sheet.pixmap.isNull()) {
+        qFatal("Could not load resources/sprites/player.png");
+    }
 
     // ── Layout ───────────────────────────────────────────────────────────────
     auto *layout = new QVBoxLayout(this);
