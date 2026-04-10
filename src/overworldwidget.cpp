@@ -22,8 +22,8 @@ PlayerSprite::PlayerSprite(const SpriteSheet &sheet, QGraphicsItem *parent)
     setTransformationMode(Qt::FastTransformation);
     setTransformOriginPoint(W / 2.0, H / 2.0);
 
-    // Start idle, facing toward camera (Direction::S)
-    setIdleFrame(Direction::S);
+    // Start idle, facing down (toward camera)
+    setIdleFrame(Direction::Down);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -95,25 +95,25 @@ void PlayerSprite::step(const QSet<int> &heldKeys, const QRectF &worldBounds)
     //
     //  8-way WASD → Direction mapping:
     //
-    //   W       → N    (back to camera, row 2)
-    //   S       → S    (toward camera,  row 8)
-    //   A       → W    (left,           row 4)
-    //   D       → E    (right-forward,  row 7)
-    //   W+D     → NE   (up-right diag,  row 5)
-    //   W+A     → SW   (up-left diag,   row 3)
-    //   S+D     → SE   (down-right,     row 1)
-    //   S+A     → SW2  (down-left,      row 6)
+    //   D       → Right
+    //   A       → Left
+    //   W       → Up
+    //   S       → Down
+    //   W+D     → ForwardRight
+    //   W+A     → ForwardLeft
+    //   S+D     → DownRight
+    //   S+A     → DownLeft
     //
     if (moving) {
         Direction dir;
-        if      (goUp   && goRight) dir = Direction::NE;
-        else if (goUp   && goLeft)  dir = Direction::SW;
-        else if (goDown && goRight) dir = Direction::SE;
-        else if (goDown && goLeft)  dir = Direction::SW2;
-        else if (goRight)           dir = Direction::E;
-        else if (goLeft)            dir = Direction::W;
-        else if (goUp)              dir = Direction::N;
-        else                        dir = Direction::S;
+        if      (goUp   && goRight) dir = Direction::ForwardRight;
+        else if (goUp   && goLeft)  dir = Direction::ForwardLeft;
+        else if (goDown && goRight) dir = Direction::DownRight;
+        else if (goDown && goLeft)  dir = Direction::DownLeft;
+        else if (goRight)           dir = Direction::Right;
+        else if (goLeft)            dir = Direction::Left;
+        else if (goUp)              dir = Direction::Up;
+        else                        dir = Direction::Down;
 
         setWalkAnim(dir);
 
